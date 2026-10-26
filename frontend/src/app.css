@@ -1,0 +1,37 @@
+@import "tailwindcss";
+:root {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  color: #172033;
+  background: #fafaf9;
+}
+body {
+  margin: 0;
+}
+a {
+  color: inherit;
+}
+.prose {
+  max-width: 70ch;
+  line-height: 1.75;
+}
+.prose h1,
+.prose h2,
+.prose h3 {
+  line-height: 1.2;
+  margin-top: 1.8em;
+}
+.prose pre {
+  overflow: auto;
+  background: #172033;
+  color: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+}
+.prose code {
+  background: #e7e5e4;
+  padding: 0.15rem 0.3rem;
+  border-radius: 0.25rem;
+}
+.prose img {
+  max-width: 100%;
+}

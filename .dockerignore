@@ -1,0 +1,12 @@
+# Build context excludes secrets, VCS metadata, and local dependencies.
+.git
+.env
+.env.*
+!.env.example
+node_modules
+.svelte-kit
+build
+coverage
+*.log
+.gitignore
+Dockerfile*

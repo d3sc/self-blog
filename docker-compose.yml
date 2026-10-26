@@ -1,0 +1,84 @@
+name: blog-cms
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-blog}
+      POSTGRES_USER: ${POSTGRES_USER:-blog}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set; copy .env.example to .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend_internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 12
+      start_period: 10s
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_ENV: ${APP_ENV:-production}
+      PORT: ${BACKEND_PORT:-8080}
+      DATABASE_URL: postgres://${POSTGRES_USER:-blog}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD must be set}@db:5432/${POSTGRES_DB:-blog}?sslmode=disable
+      SESSION_SECRET: ${SESSION_SECRET:?SESSION_SECRET must be set; generate a long random value}
+      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      TRUSTED_ORIGINS: ${TRUSTED_ORIGINS:-http://127.0.0.1:3000,http://localhost:3000}
+      MIGRATIONS_PATH: file:///app/migrations
+    depends_on:
+      db:
+        condition: service_healthy
+    networks:
+      - backend_internal
+      - app
+    expose:
+      - "8080"
+    command: ["/app/server"]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:$${PORT}/healthz >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: ${FRONTEND_PORT:-3000}
+      API_INTERNAL_URL: ${API_INTERNAL_URL:-http://backend:8080/api/v1}
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - app
+    ports:
+      - "${FRONTEND_BIND:-127.0.0.1}:${FRONTEND_HOST_PORT:-3000}:3000"
+    expose:
+      - "3000"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O - http://127.0.0.1:$${PORT}/ >/dev/null"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 15s
+
+volumes:
+  postgres_data:
+    name: ${POSTGRES_VOLUME_NAME:-blog_cms_postgres_data}
+
+networks:
+  backend_internal:
+    internal: true
+  app:
+    driver: bridge

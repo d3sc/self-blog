@@ -1,0 +1,31 @@
+# Local secrets and generated state
+.env
+.env.*
+!.env.example
+
+# OS/editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Logs and coverage
+*.log
+coverage/
+
+# Node/frontend
+node_modules/
+frontend/.svelte-kit/
+frontend/build/
+frontend/.vercel/
+
+# Go/backend
+backend/bin/
+backend/tmp/
+backend/vendor/
+
+# Test/build artifacts
+.pytest_cache/
+__pycache__/
+*.test

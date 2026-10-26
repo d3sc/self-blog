@@ -1,0 +1,10 @@
+# Dependencies are installed in the build stage.
+node_modules
+.svelte-kit
+build
+.vite
+*.log
+.git
+.gitignore
+Dockerfile
+.dockerignore
